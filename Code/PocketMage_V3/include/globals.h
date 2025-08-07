@@ -114,6 +114,21 @@ extern volatile bool SDActive;
 enum KBState { NORMAL, SHIFT, FUNC };
 extern KBState CurrentKBState;
 
+enum KBMap {
+  EMPTY     = 0,
+  LOAD      = 5,
+  SAVE      = 6,
+  BKSP      = 8,
+  TAB       = 9,
+  CR        = 13,
+  SHIFT_KEY = 17,
+  FN_KEY    = 18,
+  LEFT      = 19,
+  ESC       = 20,
+  RIGHT     = 21,
+  SPACE     = 32
+};
+
 extern uint8_t partialCounter;
 extern volatile bool forceSlowFullUpdate;
 

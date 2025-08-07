@@ -1,3 +1,5 @@
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+
 #include "globals.h"
 
 String currentJournal = "";
@@ -28,7 +30,51 @@ bool isLeapYear(int year) {
   return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
 }
 
+int daysInMonth(int year, int month) {
+  constexpr int table[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+  if (month == 2 && isLeapYear(year)) {
+    return 29;
+  } else {
+    return table[month - 1]; // Assumes months are numbered 1-12
+  }
+}
+
+bool validDate(int year, int month, int day) {
+  return ((1 <= month && month <= 12) &&
+          (1 <= day   && day <= daysInMonth(year, month)));
+}
+
+String paddedNumber(int num, int targetLength) {
+  String padded = String(num);
+
+  for (int diff = targetLength - padded.length(); diff > 0; diff--) {
+    padded = "0" + padded;
+  }
+
+  return padded;
+}
+
+bool isDigit(char c) {
+  return (48 <= c && c <= 57);
+}
+
 void drawJMENU() {
+  enum class Box : int {
+    width = 4,
+    height = 4
+  };
+
+  enum class Margin : int {
+    left = 91,
+    top = 50
+  };
+
+  enum class Spacing : int {
+    horizontal = 7,
+    vertical = 9
+  };
+
   SDActive = true;
   setCpuFrequencyMhz(240);
   delay(50);
@@ -42,91 +88,21 @@ void drawJMENU() {
   String year = String(now.year());
 
   // Files are in the format "/journal/YYYYMMDD.txt"
-  // JANUARY
-  for (int i = 1; i < 31; i++) {
-    String dayCode = "";
-    if (i<10) dayCode = "0"+String(i);
-    else dayCode = String(i);
-    
-    String fileCode = "/journal/" + year + "01" + dayCode + ".txt";
-    if (SD_MMC.exists(fileCode)) display.fillRect(91 + (7*(i-1)), 50, 4, 4, GxEPD_BLACK);
-  }
-  // FEBRUARY
-  int febDays = isLeapYear(year.toInt()) ? 29 : 28;
-  for (int i = 1; i <= febDays; i++) {
-    String dayCode = (i < 10) ? "0" + String(i) : String(i);
-    String fileCode = "/journal/" + year + "02" + dayCode + ".txt";
-    if (SD_MMC.exists(fileCode)) display.fillRect(91 + (7 * (i - 1)), 59, 4, 4, GxEPD_BLACK);
-  }
+  for (int monthIndex = 1; monthIndex <= 12; monthIndex++) {
 
-  // MARCH
-  for (int i = 1; i <= 31; i++) {
-    String dayCode = (i < 10) ? "0" + String(i) : String(i);
-    String fileCode = "/journal/" + year + "03" + dayCode + ".txt";
-    if (SD_MMC.exists(fileCode)) display.fillRect(91 + (7 * (i - 1)), 68, 4, 4, GxEPD_BLACK);
-  }
+    int numDays = daysInMonth(now.year(), monthIndex);
 
-  // APRIL
-  for (int i = 1; i <= 30; i++) {
-    String dayCode = (i < 10) ? "0" + String(i) : String(i);
-    String fileCode = "/journal/" + year + "04" + dayCode + ".txt";
-    if (SD_MMC.exists(fileCode)) display.fillRect(91 + (7 * (i - 1)), 77, 4, 4, GxEPD_BLACK);
-  }
+    for (int dayIndex = 1; dayIndex <= numDays; dayIndex++) {
+      int x = Margin::left +   ((day - 1) * Spacing::horizontal);
+      int y = Margin::top  + ((month - 1) * Spacing::vertical);
 
-  // MAY
-  for (int i = 1; i <= 31; i++) {
-    String dayCode = (i < 10) ? "0" + String(i) : String(i);
-    String fileCode = "/journal/" + year + "05" + dayCode + ".txt";
-    if (SD_MMC.exists(fileCode)) display.fillRect(91 + (7 * (i - 1)), 86, 4, 4, GxEPD_BLACK);
-  }
+      String day   = paddedNumber(dayIndex, 2);
+      String month = paddedNumber(monthIndex, 2);
 
-  // JUNE
-  for (int i = 1; i <= 30; i++) {
-    String dayCode = (i < 10) ? "0" + String(i) : String(i);
-    String fileCode = "/journal/" + year + "06" + dayCode + ".txt";
-    if (SD_MMC.exists(fileCode)) display.fillRect(91 + (7 * (i - 1)), 95, 4, 4, GxEPD_BLACK);
-  }
+      String fileCode = "/journal/" + year + month + day + ".txt";
 
-  // JULY
-  for (int i = 1; i <= 31; i++) {
-    String dayCode = (i < 10) ? "0" + String(i) : String(i);
-    String fileCode = "/journal/" + year + "07" + dayCode + ".txt";
-    if (SD_MMC.exists(fileCode)) display.fillRect(91 + (7 * (i - 1)), 104, 4, 4, GxEPD_BLACK);
-  }
-
-  // AUGUST
-  for (int i = 1; i <= 31; i++) {
-    String dayCode = (i < 10) ? "0" + String(i) : String(i);
-    String fileCode = "/journal/" + year + "08" + dayCode + ".txt";
-    if (SD_MMC.exists(fileCode)) display.fillRect(91 + (7 * (i - 1)), 113, 4, 4, GxEPD_BLACK);
-  }
-
-  // SEPTEMBER
-  for (int i = 1; i <= 30; i++) {
-    String dayCode = (i < 10) ? "0" + String(i) : String(i);
-    String fileCode = "/journal/" + year + "09" + dayCode + ".txt";
-    if (SD_MMC.exists(fileCode)) display.fillRect(91 + (7 * (i - 1)), 122, 4, 4, GxEPD_BLACK);
-  }
-
-  // OCTOBER
-  for (int i = 1; i <= 31; i++) {
-    String dayCode = (i < 10) ? "0" + String(i) : String(i);
-    String fileCode = "/journal/" + year + "10" + dayCode + ".txt";
-    if (SD_MMC.exists(fileCode)) display.fillRect(91 + (7 * (i - 1)), 131, 4, 4, GxEPD_BLACK);
-  }
-
-  // NOVEMBER
-  for (int i = 1; i <= 30; i++) {
-    String dayCode = (i < 10) ? "0" + String(i) : String(i);
-    String fileCode = "/journal/" + year + "11" + dayCode + ".txt";
-    if (SD_MMC.exists(fileCode)) display.fillRect(91 + (7 * (i - 1)), 140, 4, 4, GxEPD_BLACK);
-  }
-
-  // DECEMBER
-  for (int i = 1; i <= 31; i++) {
-    String dayCode = (i < 10) ? "0" + String(i) : String(i);
-    String fileCode = "/journal/" + year + "12" + dayCode + ".txt";
-    if (SD_MMC.exists(fileCode)) display.fillRect(91 + (7 * (i - 1)), 149, 4, 4, GxEPD_BLACK);
+      if (SD_MMC.exists(fileCode)) display.fillRect(x, y, Box::width, Box::height, GxEPD_BLACK);
+    }
   }
 
   if (SAVE_POWER) setCpuFrequencyMhz(POWER_SAVE_FREQ);
@@ -134,25 +110,67 @@ void drawJMENU() {
 }
 
 void JMENUCommand(String command) {
+  bool validInput = true;
+
+  String filename = "";
+
   SDActive = true;
   setCpuFrequencyMhz(240);
   delay(50);
 
-  command.toLowerCase();
+  command.toLowerCase().trim();
 
   if (command == "t") {
     DateTime now = rtc.now();
 
-    String dayStr = "";
-    if (now.day() < 10) dayStr = "0" + String(now.day());
-    else dayStr = String(now.day());
+    String year  = String(now.year());
+    String month = paddedNumber(now.month(), 2);
+    String day   = paddedNumber(now.day(),   2);
 
-    String monthStr = "";
-    if (now.month() < 10) monthStr = "0" + String(now.month());
-    else monthStr = String(now.month());
+    fileName = "/journal/" + year + month + day + ".txt";
+  }
+  // command in the form "YYYYMMDD"
+  else if (command.length() == 8 && command.toInt() > 0) {
+    int yearIndex = command.substring(0, 4).toInt();
+    int monthIndex = command.substring(4, 6).toInt();
+    int dayIndex = command.substring(6, 8).toInt();
 
-    String fileName = "/journal/" + String(now.year()) + monthStr + dayStr + ".txt";
-    
+    if (validDate(yearIndex, monthIndex, dayIndex)) {
+      String year = String(yearIndex);
+      String month = paddedNumber(monthIndex);
+      String day = paddedNumber(dayIndex);
+      fileName = "/journal/" + year + month + day + ".txt";
+    } else {
+      validInput = false;
+    }
+  }
+  // command in the form "jan 1"
+  else {
+    int spaceIndex = command.indexOf(' ');
+    if (spaceIndex != -1 && spaceIndex < command.length() - 1) {
+
+      String monthStr = command.substring(0, spaceIndex);
+      String dayStr = command.substring(spaceIndex + 1);
+
+      String monthMap = "janfebmaraprmayjunjulaugsepoctnovdec";
+
+      int yearIndex  = rtc.now().year();
+      int monthIndex = (monthMap.indexOf(monthStr) / 3) + 1;
+      int dayIndex   = dayStr.toInt();
+
+      if (validDate(yearIndex, monthIndex, dayIndex)) {
+        String year  = String(yearIndex);
+        String month = paddedNumber(monthIndex);
+        String day   = paddedNumber(dayIndex);
+
+        fileName = "/journal/" + year + month + day + ".txt";
+      } else {
+        validInput = false;
+      }
+    }
+  }
+
+  if (validInput) {
     // If file doesn't exist, create it
     if (!SD_MMC.exists(fileName)) {
       File f = SD_MMC.open(fileName, FILE_WRITE);
@@ -168,67 +186,9 @@ void JMENUCommand(String command) {
     dynamicScroll = 0;
     newLineAdded = true;
     CurrentJournalState = J_TXT;
-    return;
-  }
-
-  // command in the form "YYYYMMDD"
-  else if (command.length() == 8 && command.toInt() > 0) {
-    String fileName = "/journal/" + command + ".txt";
-
-    if (!SD_MMC.exists(fileName)) {
-      File f = SD_MMC.open(fileName, FILE_WRITE);
-      if (f) f.close();
-    }
-
-    currentJournal = fileName;
-
-    // Load file
-    editingFile = currentJournal;
-    loadJournal();
-
-    dynamicScroll = 0;
-    newLineAdded = true;
-    CurrentJournalState = J_TXT;
-    return;
-  }
-
-  // command in the form "jan 1"
-  else {
-    int spaceIndex = command.indexOf(' ');
-    if (spaceIndex != -1 && spaceIndex < command.length() - 1) {
-      String monthStr = command.substring(0, spaceIndex);
-      String dayStr = command.substring(spaceIndex + 1);
-      int day = dayStr.toInt();
-
-      if (day < 1 || day > 31) return;  // invalid day
-
-      String monthMap = "janfebmaraprmayjunjulaugsepoctnovdec";
-      int monthIndex = monthMap.indexOf(monthStr);
-      if (monthIndex == -1) return;  // invalid month
-
-      int month = (monthIndex / 3) + 1;
-
-      String year = String(rtc.now().year());
-      String m = (month < 10) ? "0" + String(month) : String(month);
-      String d = (day < 10) ? "0" + String(day) : String(day);
-      String fileName = "/journal/" + year + m + d + ".txt";
-
-      if (!SD_MMC.exists(fileName)) {
-        File f = SD_MMC.open(fileName, FILE_WRITE);
-        if (f) f.close();
-      }
-
-      currentJournal = fileName;
-
-      // Load file
-      editingFile = currentJournal;
-      loadJournal();
-
-      dynamicScroll = 0;
-      newLineAdded = true;
-      CurrentJournalState = J_TXT;
-      return;
-    }
+  } else {
+    oledLine("Invalid command format");
+    delay(50);
   }
 
   if (SAVE_POWER) setCpuFrequencyMhz(POWER_SAVE_FREQ);
@@ -240,69 +200,56 @@ void processKB_JOURNAL() {
   int currentMillis = millis();
   char inchar;
 
+  if (currentMillis - KBBounceMillis < KB_COOLDOWN)
+    return
+
   switch (CurrentJournalState) {
     case J_MENU:
-      if (currentMillis - KBBounceMillis >= KB_COOLDOWN) {  
-        inchar = updateKeypress();
-        // HANDLE INPUTS
-        //No char recieved
-        if (inchar == 0);   
-        //CR Recieved
-        else if (inchar == 13) {                          
-          JMENUCommand(currentLine);
-          currentLine = "";
-        }                                      
-        //SHIFT Recieved
-        else if (inchar == 17) {                                  
-          if (CurrentKBState == SHIFT) CurrentKBState = NORMAL;
-          else CurrentKBState = SHIFT;
-        }
-        //FN Recieved
-        else if (inchar == 18) {                                  
-          if (CurrentKBState == FUNC) CurrentKBState = NORMAL;
-          else CurrentKBState = FUNC;
-        }
-        //Space Recieved
-        else if (inchar == 32) {                                  
-          currentLine += " ";
-        }
-        //ESC / CLEAR Recieved
-        else if (inchar == 20) {                                  
-          currentLine = "";
-        }
-        //BKSP Recieved
-        else if (inchar == 8) {                  
-          if (currentLine.length() > 0) {
+      inchar = updateKeypress();
+      // HANDLE INPUTS
+      switch (inchar) {
+        case EMPTY:
+          break;
+        case BKSP:
+          if (currentLine.length() > 0)
             currentLine.remove(currentLine.length() - 1);
-          }
-        }
-        // Home recieved
-        else if (inchar == 12) {
+          break;
+        case 12:
           editingFile = bufferEditingFile;
           CurrentAppState = HOME;
-          currentLine     = "";
-          newState        = true;
-          CurrentKBState  = NORMAL;
-        }
-        else {
+          currentLine = "";
+          newState = true;
+          currentKBState = NORMAL;
+          break;
+        case CR:
+          JMENUCommand(currentLine);
+          currentLine = "";
+          break;
+        case SHIFT_KEY:
+          CurrentKBState = (CurrentKBState == SHIFT) ? NORMAL : SHIFT;
+          break;
+        case FN_KEY:
+          CurrentKBState = (CurrentKBState == FUNC) ? NORMAL : FUNC;
+          break;
+        case ESC:
+          currentLine = "";
+          break;
+        default: // Normal character received
           currentLine += inchar;
-          if (inchar >= 48 && inchar <= 57) {}  //Only leave FN on if typing numbers
-          else if (CurrentKBState != NORMAL) {
-            CurrentKBState = NORMAL;
-          }
-        }
+          if (inchar != SPACE && !isDigit(inchar) && CurrentKBState != NORMAL)
+            currentKBState = NORMAL;
+          break;
+      }
 
-        currentMillis = millis();
-        //Make sure oled only updates at OLED_MAX_FPS
-        if (currentMillis - OLEDFPSMillis >= (1000/OLED_MAX_FPS)) {
-          OLEDFPSMillis = currentMillis;
-          oledLine(currentLine, false);
-        }
+      currentMillis = millis();
+      //Make sure oled only updates at OLED_MAX_FPS
+      if (currentMillis - OLEDFPSMillis >= (1000/OLED_MAX_FPS)) {
+        OLEDFPSMillis = currentMillis;
+        oledLine(currentLine, false);
       }
       break;
 
     case J_TXT:
-      if (currentMillis - KBBounceMillis >= KB_COOLDOWN) {  
       inchar = updateKeypress();
       // SET MAXIMUMS AND FONT
       setTXTFont(currentFont);
@@ -311,82 +258,62 @@ void processKB_JOURNAL() {
       updateScrollFromTouch();
 
       // HANDLE INPUTS
-      //No char recieved
-      if (inchar == 0);  
-      else if (inchar == 12) {
-        JOURNAL_INIT();
-      }
-      //TAB Recieved
-      else if (inchar == 9) {                                  
-        currentLine += "    ";
-      }                                      
-      //SHIFT Recieved
-      else if (inchar == 17) {                                  
-        if (CurrentKBState == SHIFT) CurrentKBState = NORMAL;
-        else CurrentKBState = SHIFT;
-      }
-      //FN Recieved
-      else if (inchar == 18) {                                  
-        if (CurrentKBState == FUNC) CurrentKBState = NORMAL;
-        else CurrentKBState = FUNC;
-      }
-      //Space Recieved
-      else if (inchar == 32) {                                  
-        currentLine += " ";
-      }
-      //CR Recieved
-      else if (inchar == 13) {                          
-        allLines.push_back(currentLine);
-        currentLine = "";
-        newLineAdded = true;
-      }
-      //ESC / CLEAR Recieved
-      else if (inchar == 20) {                                  
-        allLines.clear();
-        currentLine = "";
-        oledWord("Clearing...");
-        doFull = true;
-        newLineAdded = true;
-        delay(300);
-      }
-      // LEFT
-      else if (inchar == 19) {                                  
-        
-      }
-      // RIGHT
-      else if (inchar == 21) {                                  
-        
-      }
-      //BKSP Recieved
-      else if (inchar == 8) {                  
-        if (currentLine.length() > 0) {
-          currentLine.remove(currentLine.length() - 1);
-        }
-      }
-      //SAVE Recieved
-      else if (inchar == 6) { 
-        saveJournal();
-        CurrentKBState = NORMAL;
-        newLineAdded = true;
-      }
-      //LOAD Recieved
-      else if (inchar == 5) {
-        loadJournal();
-        CurrentKBState = NORMAL;
-        newLineAdded = true;
-      }
-      // Font Switcher 
-      else if (inchar == 14) {                                  
-        CurrentTXTState = FONT;
-        CurrentKBState = FUNC;
-        newState = true;
-      }
-      else {
-        currentLine += inchar;
-        if (inchar >= 48 && inchar <= 57) {}  //Only leave FN on if typing numbers
-        else if (CurrentKBState != NORMAL) {
+      switch (inchar) {
+        case EMPTY:
+          break
+        case LOAD:
+          loadJournal();
           CurrentKBState = NORMAL;
-        }
+          newLineAdded = true;
+          break;
+        case SAVE:
+          saveJournal();
+          CurrentKBState = NORMAL;
+          newLineAdded = true;
+          break;
+        case BKSP:
+          if (currentLine.length() > 0)
+            currentLine.remove(currentLine.length() - 1);
+          break;
+        case TAB:
+          currentLine += "    ";
+          break;
+        case 12:
+          JOURNAL_INIT();
+          break;
+        case CR:
+          allLines.push_back(currentLine);
+          currentLine = "";
+          newLineAdded = true;
+          break;
+        case 14: // Font Switcher
+          CurrentTXTState = FONT;
+          CurrentKBState = FUNC;
+          newState = true;
+          break;
+        case SHIFT_KEY:
+          CurrentKBState = (CurrentKBState == SHIFT) ? NORMAL : SHIFT;
+          break;
+        case FN_KEY:
+          CurrentKBState = (CurrentKBState == FUNC) ? NORMAL : FUNC;
+          break;
+        case LEFT:
+          break;
+        case ESC:
+          allLines.clear();
+          currentLine = "";
+          oledWord("Clearing...");
+          doFull = true;
+          newLineAdded = true;
+          delay(300);
+          break;
+        case RIGHT:
+          break;
+        default:
+          currentLine += inchar;
+          if (inchar != SPACE && !isDigit(inchar) && CurrentKBState != NORMAL)
+            currentKBState = NORMAL;
+          break;
       }
 
       currentMillis = millis();
@@ -396,7 +323,7 @@ void processKB_JOURNAL() {
         // ONLY SHOW OLEDLINE WHEN NOT IN SCROLL MODE
         if (lastTouch == -1) {
           oledLine(currentLine);
-          if (prev_dynamicScroll != dynamicScroll) prev_dynamicScroll = dynamicScroll;
+          prev_dynamicScroll = dynamicScroll;
         }
         else oledScroll();
       }
@@ -422,7 +349,7 @@ void processKB_JOURNAL() {
               currentLine = currentLine.substring(0, lastSpace);  // Strip partial word
               allLines.push_back(currentLine);
               currentLine = partialWord;  // Start new line with the partial word
-            } 
+            }
             // No spaces found, whole line is a single word
             else {
               allLines.push_back(currentLine);
@@ -434,7 +361,6 @@ void processKB_JOURNAL() {
       }
 
       break;
-  }
   }
 }
 
@@ -462,5 +388,5 @@ void einkHandler_JOURNAL() {
       newState = false;
       newLineAdded = false;
       break;
-  } 
+  }
 }
