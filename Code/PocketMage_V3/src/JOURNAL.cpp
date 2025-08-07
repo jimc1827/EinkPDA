@@ -60,17 +60,17 @@ bool isDigit(char c) {
 }
 
 void drawJMENU() {
-  enum class Box : int {
+  enum Box {
     width = 4,
     height = 4
   };
 
-  enum class Margin : int {
+  enum Margin {
     left = 91,
     top = 50
   };
 
-  enum class Spacing : int {
+  enum Spacing {
     horizontal = 7,
     vertical = 9
   };
