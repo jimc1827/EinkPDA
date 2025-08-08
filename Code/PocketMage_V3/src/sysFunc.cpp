@@ -530,6 +530,22 @@ int stringToInt(String str) {
   return str.toInt(); // Safe to convert
 }
 
+// Pads a number with leading zeroes until it meets or exceeds `targetLength`
+String paddedNumber(int num, int targetLength) {
+  String padded = String(num);
+
+  for (int diff = targetLength - padded.length(); diff > 0; diff--) {
+    padded = "0" + padded;
+  }
+
+  return padded;
+}
+
+bool isDigit(char c) {
+  return (48 <= c && c <= 57);
+}
+
+
 // Misc Outputs
 void playJingle(String jingle) {
   if (jingle == "startup") {

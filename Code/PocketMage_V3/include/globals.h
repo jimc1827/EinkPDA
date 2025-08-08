@@ -207,6 +207,11 @@ extern JournalState CurrentJournalState;
 
 
 // FUNCTION PROTOTYPES
+// <dateFunc.cpp>
+bool isLeapYear(int year);
+int daysInMonth(int year, int month);
+bool validDate(int year, int month, int day);
+
 // <sysFunc.cpp>
 // SYSTEM
 void checkTimeout();
@@ -232,6 +237,8 @@ void playJingle(String jingle);
 void deepSleep(bool alternateScreenSaver = false);
 void loadState(bool changeState = true);
 int stringToInt(String str);
+String paddedNumber(int num, int targetLength);
+bool isDigit(char c);
 
 // microSD
 void listDir(fs::FS &fs, const char *dirname);

@@ -26,39 +26,6 @@ void saveJournal() {
 }
 
 // Functions
-bool isLeapYear(int year) {
-  return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
-}
-
-int daysInMonth(int year, int month) {
-  constexpr int table[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-  if (month == 2 && isLeapYear(year)) {
-    return 29;
-  } else {
-    return table[month - 1]; // Assumes months are numbered 1-12
-  }
-}
-
-bool validDate(int year, int month, int day) {
-  return ((1 <= month && month <= 12) &&
-          (1 <= day   && day <= daysInMonth(year, month)));
-}
-
-String paddedNumber(int num, int targetLength) {
-  String padded = String(num);
-
-  for (int diff = targetLength - padded.length(); diff > 0; diff--) {
-    padded = "0" + padded;
-  }
-
-  return padded;
-}
-
-bool isDigit(char c) {
-  return (48 <= c && c <= 57);
-}
-
 void drawJMENU() {
   enum Box {
     width = 4,
@@ -93,8 +60,8 @@ void drawJMENU() {
     int numDays = daysInMonth(now.year(), monthIndex);
 
     for (int dayIndex = 1; dayIndex <= numDays; dayIndex++) {
-      int x = Margin::left +   ((day - 1) * Spacing::horizontal);
-      int y = Margin::top  + ((month - 1) * Spacing::vertical);
+      int x = Margin::left +   ((dayIndex - 1) * Spacing::horizontal);
+      int y = Margin::top  + ((monthIndex - 1) * Spacing::vertical);
 
       String day   = paddedNumber(dayIndex, 2);
       String month = paddedNumber(monthIndex, 2);
@@ -112,13 +79,14 @@ void drawJMENU() {
 void JMENUCommand(String command) {
   bool validInput = true;
 
-  String filename = "";
+  String fileName = "";
 
   SDActive = true;
   setCpuFrequencyMhz(240);
   delay(50);
 
-  command.toLowerCase().trim();
+  command.toLowerCase();
+  command.trim();
 
   if (command == "t") {
     DateTime now = rtc.now();
@@ -137,8 +105,8 @@ void JMENUCommand(String command) {
 
     if (validDate(yearIndex, monthIndex, dayIndex)) {
       String year = String(yearIndex);
-      String month = paddedNumber(monthIndex);
-      String day = paddedNumber(dayIndex);
+      String month = paddedNumber(monthIndex, 2);
+      String day = paddedNumber(dayIndex, 2);
       fileName = "/journal/" + year + month + day + ".txt";
     } else {
       validInput = false;
@@ -160,8 +128,8 @@ void JMENUCommand(String command) {
 
       if (validDate(yearIndex, monthIndex, dayIndex)) {
         String year  = String(yearIndex);
-        String month = paddedNumber(monthIndex);
-        String day   = paddedNumber(dayIndex);
+        String month = paddedNumber(monthIndex, 2);
+        String day   = paddedNumber(dayIndex, 2);
 
         fileName = "/journal/" + year + month + day + ".txt";
       } else {
@@ -201,7 +169,7 @@ void processKB_JOURNAL() {
   char inchar;
 
   if (currentMillis - KBBounceMillis < KB_COOLDOWN)
-    return
+    return;
 
   switch (CurrentJournalState) {
     case J_MENU:
@@ -219,7 +187,7 @@ void processKB_JOURNAL() {
           CurrentAppState = HOME;
           currentLine = "";
           newState = true;
-          currentKBState = NORMAL;
+          CurrentKBState = NORMAL;
           break;
         case CR:
           JMENUCommand(currentLine);
@@ -237,7 +205,7 @@ void processKB_JOURNAL() {
         default: // Normal character received
           currentLine += inchar;
           if (inchar != SPACE && !isDigit(inchar) && CurrentKBState != NORMAL)
-            currentKBState = NORMAL;
+            CurrentKBState = NORMAL;
           break;
       }
 
@@ -260,7 +228,7 @@ void processKB_JOURNAL() {
       // HANDLE INPUTS
       switch (inchar) {
         case EMPTY:
-          break
+          break;
         case LOAD:
           loadJournal();
           CurrentKBState = NORMAL;
@@ -312,7 +280,7 @@ void processKB_JOURNAL() {
         default:
           currentLine += inchar;
           if (inchar != SPACE && !isDigit(inchar) && CurrentKBState != NORMAL)
-            currentKBState = NORMAL;
+            CurrentKBState = NORMAL;
           break;
       }
 
